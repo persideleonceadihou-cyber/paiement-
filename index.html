@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paiement du loyer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #1A2B5E;
+      --navy-dark: #0D1B2E;
+      --cream:     #F2C94C;
+      --cream-lt:  #FDF6DC;
+      --bg:        #F5F0E8;
+      --white:     #FFFFFF;
+      --muted:     #7A6F52;
+      --border:    #ECE6D6;
+      --green:     #149954;
+      --red:       #E53935;
+      --blue:      #1F6FEB;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--navy);
+      padding: 28px 20px 24px;
+      text-align: center;
+    }
+    header .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    header .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--cream);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    header h1 {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    header p {
+      color: #ABC4E0;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 24px 16px 40px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 4px 20px rgba(26,43,94,.07);
+    }
+
+    /* ── STEP INDICATOR ── */
+    .steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 0;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+    .step-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #EEF3F8;
+      color: #8A9BB0;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all .25s;
+    }
+    .step-dot.active { background: var(--navy); color: #fff; }
+    .step-dot.done   { background: var(--green); color: #fff; }
+    .step-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8A9BB0;
+      transition: color .25s;
+      white-space: nowrap;
+    }
+    .step.active .step-label { color: var(--navy); }
+    .step.done  .step-label  { color: var(--green); }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #EEF3F8;
+      margin: 0 6px;
+      transition: background .25s;
+    }
+    .step-line.done { background: var(--green); }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* ── CODE INPUT ── */
+    .code-input-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .code-input {
+      flex: 1;
+      background: #F0F4FA;
+      border: 1.5px solid #DDEAF8;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      color: var(--navy);
+      text-transform: uppercase;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .code-input:focus { border-color: var(--blue); }
+    .code-input.error { border-color: var(--red); }
+    .code-hint {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .code-hint.error-msg { color: var(--red); font-weight: 700; }
+
+    /* ── BTN ── */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(135deg, var(--navy-dark), var(--blue)); color: #fff; }
+    .btn-green   { background: var(--green); color: #fff; }
+    .btn-yellow  { background: var(--cream); color: var(--navy); }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--navy);
+      margin-top: 10px;
+    }
+    .btn-wa { background: #25D366; color: #fff; }
+
+    /* ── TENANT CARD ── */
+    .tenant-card {
+      background: linear-gradient(135deg, var(--navy-dark), #1A4480);
+      border-radius: 16px;
+      padding: 18px;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .tenant-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--cream);
+      color: var(--navy);
+      font-size: 17px;
+      font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .tenant-name { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
+    .tenant-room { font-size: 13px; color: #ABC4E0; margin-bottom: 14px; }
+    .tenant-amount {
+      display: inline-block;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+    .badge-ok     { background: #F0FAE4; color: #3B6D11; border: 1px solid #C0DD97; }
+    .badge-warn   { background: #FAEEDF; color: #854F0B; border: 1px solid #F5C97A; }
+    .badge-late   { background: #FFEBE5; color: #993C1D; border: 1px solid #F5B5A0; }
+
+    /* ── MONTHS SELECTOR ── */
+    .months-wrap {
+      margin-bottom: 20px;
+    }
+    .months-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .months-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #F0F4FA;
+      border: 1.5px solid #DDEAF8;
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+    .months-ctrl {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      border: none;
+      background: var(--navy);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    #months-count {
+      flex: 1;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--navy);
+    }
+    .months-unit {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* ── TOTAL BOX ── */
+    .total-box {
+      background: var(--cream-lt);
+      border: 1.5px solid #EDE0A0;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .total-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .total-amount { font-size: 22px; font-weight: 900; color: var(--navy); }
+
+    /* ── METHOD PILLS ── */
+    .methods-label {
+      font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 10px;
+    }
+    .methods-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .method-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #F0F4FA;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .method-pill .pill-icon { font-size: 20px; }
+    .method-pill.selected {
+      border-color: var(--blue);
+      background: #EEF5FF;
+    }
+
+    /* ── PHONE INPUT ── */
+    .phone-wrap { margin-bottom: 20px; display: none; }
+    .phone-wrap.visible { display: block; }
+    .phone-label {
+      font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px;
+    }
+    .phone-input {
+      width: 100%;
+      background: #F0F4FA;
+      border: 1.5px solid #DDEAF8;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+      outline: none;
+    }
+    .phone-input:focus { border-color: var(--blue); }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-icon {
+      width: 72px; height: 72px;
+      background: #F0FAE4;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 20px;
+    }
+    .success-title {
+      text-align: center;
+      font-size: 20px; font-weight: 900;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .success-sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .receipt-box {
+      background: #F0F4FA;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .receipt-row + .receipt-row { border-top: 1px solid var(--border); }
+    .receipt-key { color: var(--muted); }
+    .receipt-val { font-weight: 700; color: var(--navy); }
+
+    /* ── LOADER ── */
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: #B0A898;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">🏠</div>
+    <h1>Gestion Locative</h1>
+  </div>
+  <p>Paiement sécurisé de loyer en ligne</p>
+</header>
+
+<main>
+  <div class="card">
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step active" id="s1">
+        <div class="step-dot active" id="dot1">1</div>
+        <span class="step-label">Identification</span>
+      </div>
+      <div class="step-line" id="line1"></div>
+      <div class="step" id="s2">
+        <div class="step-dot" id="dot2">2</div>
+        <span class="step-label">Paiement</span>
+      </div>
+      <div class="step-line" id="line2"></div>
+      <div class="step" id="s3">
+        <div class="step-dot" id="dot3">3</div>
+        <span class="step-label">Confirmation</span>
+      </div>
+    </div>
+
+    <!-- ══ ÉTAPE 1 : SAISIE CODE ══ -->
+    <div id="step1">
+      <div class="section-title">Votre code de paiement</div>
+      <div class="section-sub">Saisissez le code à 6 caractères fourni par votre propriétaire.</div>
+
+      <div class="code-input-wrap">
+        <input
+          id="code-input"
+          class="code-input"
+          type="text"
+          maxlength="6"
+          placeholder="· · · · · ·"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+      <div class="code-hint" id="code-hint">Exemple : AB3K7Z</div>
+
+      <button class="btn btn-primary" id="btn-lookup" onclick="lookupCode()">
+        Vérifier mon code
+      </button>
+    </div>
+
+    <!-- ══ ÉTAPE 2 : PAIEMENT ══ -->
+    <div id="step2" class="hidden">
+      <div id="tenant-block"></div>
+
+      <!-- Nombre de mois -->
+      <div class="months-wrap">
+        <div class="months-label">Nombre de mois à régler</div>
+        <div class="months-row">
+          <button class="months-ctrl" onclick="changeMonths(-1)">−</button>
+          <div id="months-count">1</div>
+          <span class="months-unit">mois</span>
+          <button class="months-ctrl" onclick="changeMonths(+1)">+</button>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-box">
+        <span class="total-label">Total à payer</span>
+        <span class="total-amount" id="total-amount">—</span>
+      </div>
+
+      <!-- Moyen de paiement -->
+      <div class="methods-label">Moyen de paiement</div>
+      <div class="methods-grid">
+        <div class="method-pill selected" data-method="mtn" onclick="selectMethod(this)">
+          <span class="pill-icon">📱</span> MTN MoMo
+        </div>
+        <div class="method-pill" data-method="moov" onclick="selectMethod(this)">
+          <span class="pill-icon">📲</span> Moov Money
+        </div>
+        <div class="method-pill" data-method="celtis" onclick="selectMethod(this)">
+          <span class="pill-icon">💳</span> Celtis Cash
+        </div>
+        <div class="method-pill" data-method="cash" onclick="selectMethod(this)">
+          <span class="pill-icon">💵</span> Espèces
+        </div>
+      </div>
+
+      <!-- Numéro de téléphone (Mobile Money) -->
+      <div class="phone-wrap visible" id="phone-wrap">
+        <div class="phone-label">Numéro Mobile Money</div>
+        <input class="phone-input" id="phone-input" type="tel" placeholder="+229 01 XX XX XX XX" />
+      </div>
+
+      <button class="btn btn-yellow" id="btn-pay" onclick="confirmPayment()">
+        Confirmer le paiement
+      </button>
+      <button class="btn btn-outline" onclick="resetToStep1()">← Changer de code</button>
+    </div>
+
+    <!-- ══ ÉTAPE 3 : SUCCÈS ══ -->
+    <div id="step3" class="hidden">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Paiement enregistré !</div>
+      <div class="success-sub" id="success-sub">Votre paiement a été transmis à votre propriétaire avec succès.</div>
+      <div class="receipt-box" id="receipt-box"></div>
+      <button class="btn btn-primary" onclick="resetToStep1()">Faire un autre paiement</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>Gestion Locative &copy; 2026 — Paiements sécurisés</footer>
+
+<script>
+  // ══════════════════════════════════════════
+  // CONFIG FIREBASE — remplace par tes vraies valeurs
+  // ══════════════════════════════════════════
+  const FIREBASE_PROJECT_ID = 'gestion-loca-66598';
+  const API_KEY             = 'AIzaSyBvU5twv8dFCpb-P95iO0Vju0tOAF2n9lw';
+
+  // ── État global ──
+  let currentTenant = null;
+  let monthsCount   = 1;
+  let rentAmount    = 0;
+  let selectedMethod = 'mtn';
+
+  // ══════════════════════════════════════════
+  // ÉTAPE 1 — Lookup via API REST Firestore
+  // ══════════════════════════════════════════
+  async function lookupCode() {
+    const rawCode = document.getElementById('code-input').value.trim().toUpperCase();
+    const hint    = document.getElementById('code-hint');
+    const btn     = document.getElementById('btn-lookup');
+    const input   = document.getElementById('code-input');
+
+    if (rawCode.length !== 6) {
+      setError('Le code doit contenir exactement 6 caractères.');
+      return;
+    }
+
+    // UI loading
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Vérification…';
+    input.classList.remove('error');
+    hint.className = 'code-hint';
+    hint.textContent = 'Recherche en cours…';
+
+    try {
+      // 1. Chercher dans /payment_codes/{code}
+      const codeUrl =
+        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/payment_codes/${rawCode}?key=${API_KEY}`;
+      const codeRes = await fetch(codeUrl);
+
+      if (!codeRes.ok) {
+        setError('Code introuvable. Vérifiez et réessayez.');
+        return;
+      }
+
+      const codeDoc = await codeRes.json();
+      const fields  = codeDoc.fields || {};
+      const uid      = fields.uid?.stringValue      || '';
+      const tenantId = fields.tenantId?.stringValue || '';
+
+      if (!uid || !tenantId) {
+        setError('Code invalide. Contactez votre propriétaire.');
+        return;
+      }
+
+      // 2. Chercher le locataire dans /users/{uid}/locataires/{tenantId}
+      const tenantUrl =
+        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}/locataires/${tenantId}?key=${API_KEY}`;
+      const tenantRes = await fetch(tenantUrl);
+
+      if (!tenantRes.ok) {
+        setError('Dossier locataire introuvable. Contactez votre propriétaire.');
+        return;
+      }
+
+      const tenantDoc = await tenantRes.json();
+      const tf = tenantDoc.fields || {};
+
+      currentTenant = {
+        uid,
+        tenantId,
+        paymentCode: rawCode,
+        name:         tf.name?.stringValue         || tf.nom?.stringValue    || 'Locataire',
+        room:         tf.roomNumber?.stringValue    || tf.chambre?.stringValue || '—',
+        property:     tf.propertyName?.stringValue  || tf.bien?.stringValue   || '—',
+        rentStr:      tf.rentAmount?.stringValue    || '0 FCFA',
+        status:       tf.statusLabel?.stringValue   || 'A jour',
+      };
+
+      // Extraire le montant numérique
+      rentAmount  = parseInt(currentTenant.rentStr.replace(/[^0-9]/g, '')) || 0;
+      monthsCount = 1;
+
+      goToStep2();
+
+    } catch (err) {
+      setError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Vérifier mon code';
+    }
+  }
+
+  function setError(msg) {
+    const hint  = document.getElementById('code-hint');
+    const input = document.getElementById('code-input');
+    hint.className = 'code-hint error-msg';
+    hint.textContent = msg;
+    input.classList.add('error');
+  }
+
+  // ══════════════════════════════════════════
+  // ÉTAPE 2 — Affichage + sélection
+  // ══════════════════════════════════════════
+  function goToStep2() {
+    // Mettre à jour les steps
+    setStepActive(2);
+
+    // Rendre la fiche locataire
+    const initials = currentTenant.name.trim()
+      .split(/\s+/).filter(Boolean).map(p => p[0]).slice(0,2).join('').toUpperCase() || '?';
+
+    const badgeClass = currentTenant.status === 'A jour'   ? 'badge-ok'
+                     : currentTenant.status === 'Retard'   ? 'badge-late'
+                     : 'badge-warn';
+    const badgeIcon  = currentTenant.status === 'A jour'   ? '✔'
+                     : currentTenant.status === 'Retard'   ? '⚠'
+                     : '⏳';
+
+    document.getElementById('tenant-block').innerHTML = `
+      <div class="tenant-card">
+        <div class="tenant-avatar">${initials}</div>
+        <div class="tenant-name">${currentTenant.name}</div>
+        <div class="tenant-room">Chambre ${currentTenant.room} · ${currentTenant.property}</div>
+        <div class="tenant-amount">${currentTenant.rentStr} / mois</div>
+        <span class="badge ${badgeClass}">${badgeIcon} ${currentTenant.status}</span>
+      </div>
+    `;
+
+    updateTotal();
+
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+  }
+
+  function updateTotal() {
+    const total = rentAmount * monthsCount;
+    document.getElementById('total-amount').textContent = fmtAmount(total) + ' FCFA';
+  }
+
+  function changeMonths(delta) {
+    monthsCount = Math.max(1, Math.min(12, monthsCount + delta));
+    document.getElementById('months-count').textContent = monthsCount;
+    updateTotal();
+  }
+
+  function selectMethod(el) {
+    document.querySelectorAll('.method-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedMethod = el.dataset.method;
+    const phoneWrap = document.getElementById('phone-wrap');
+    if (selectedMethod === 'cash') {
+      phoneWrap.classList.remove('visible');
+    } else {
+      phoneWrap.classList.add('visible');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // ÉTAPE 3 — Enregistrement paiement
+  // ══════════════════════════════════════════
+  async function confirmPayment() {
+    const btn = document.getElementById('btn-pay');
+    const phone = document.getElementById('phone-input').value.trim();
+
+    if (selectedMethod !== 'cash' && !phone) {
+      alert('Veuillez saisir votre numéro Mobile Money.');
+      return;
+    }
+
+    const total = rentAmount * monthsCount;
+    const methodLabel = {
+      mtn:    'MTN MoMo',
+      moov:   'Moov Money',
+      celtis: 'Celtis Cash',
+      cash:   'Espèces',
+    }[selectedMethod] || selectedMethod;
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Enregistrement…';
+
+    try {
+      // Enregistrer dans /users/{uid}/paiements (via REST)
+      const now = new Date().toISOString();
+      const paymentData = {
+        fields: {
+          tenantId:    { stringValue: currentTenant.tenantId },
+          tenantName:  { stringValue: currentTenant.name },
+          paymentCode: { stringValue: currentTenant.paymentCode },
+          amount:      { integerValue: total },
+          monthsCount: { integerValue: monthsCount },
+          method:      { stringValue: methodLabel },
+          phone:       { stringValue: phone || '' },
+          status:      { stringValue: 'paye' },
+          source:      { stringValue: 'web' },
+          createdAt:   { timestampValue: now },
+        }
+      };
+
+      const payUrl =
+        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${currentTenant.uid}/paiements?key=${API_KEY}`;
+
+      const res = await fetch(payUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData),
+      });
+
+      if (!res.ok) throw new Error('Firestore write failed');
+
+      // Mettre à jour le statut du locataire
+      const patchUrl =
+        `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${currentTenant.uid}/locataires/${currentTenant.tenantId}?key=${API_KEY}&updateMask.fieldPaths=statusLabel&updateMask.fieldPaths=balanceLabel&updateMask.fieldPaths=paymentSummary&updateMask.fieldPaths=lastPaymentAt`;
+
+      await fetch(patchUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            statusLabel:    { stringValue: 'A jour' },
+            balanceLabel:   { stringValue: 'Solde à jour' },
+            paymentSummary: { stringValue: `Dernier paiement web : ${fmtAmount(total)} FCFA (${monthsCount} mois)` },
+            lastPaymentAt:  { timestampValue: now },
+          }
+        }),
+      });
+
+      goToStep3(total, methodLabel, phone);
+
+    } catch (err) {
+      alert('Erreur lors de l\'enregistrement. Vérifiez votre connexion.');
+      btn.disabled = false;
+      btn.innerHTML = 'Confirmer le paiement';
+    }
+  }
+
+  function goToStep3(total, methodLabel, phone) {
+    setStepActive(3);
+
+    const ref = 'PAY-' + currentTenant.paymentCode + '-' + Date.now().toString(36).toUpperCase();
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    document.getElementById('success-sub').textContent =
+      `Votre paiement de ${fmtAmount(total)} FCFA a été transmis à votre propriétaire. Conservez votre référence.`;
+
+    document.getElementById('receipt-box').innerHTML = `
+      <div class="receipt-row">
+        <span class="receipt-key">Locataire</span>
+        <span class="receipt-val">${currentTenant.name}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Chambre</span>
+        <span class="receipt-val">${currentTenant.room} · ${currentTenant.property}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Mois réglés</span>
+        <span class="receipt-val">${monthsCount} mois</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Montant total</span>
+        <span class="receipt-val">${fmtAmount(total)} FCFA</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Moyen</span>
+        <span class="receipt-val">${methodLabel}${phone ? ' · ' + phone : ''}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Date</span>
+        <span class="receipt-val">${dateStr}</span>
+      </div>
+      <div class="receipt-row">
+        <span class="receipt-key">Référence</span>
+        <span class="receipt-val" style="font-size:11px;letter-spacing:1px">${ref}</span>
+      </div>
+    `;
+
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+  }
+
+  // ══════════════════════════════════════════
+  // UTILITAIRES
+  // ══════════════════════════════════════════
+  function setStepActive(n) {
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('dot' + i);
+      const s   = document.getElementById('s' + i);
+      dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+      s.className   = 'step'     + (i < n ? ' done' : i === n ? ' active' : '');
+    }
+    for (let i = 1; i <= 2; i++) {
+      document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
+    }
+  }
+
+  function resetToStep1() {
+    currentTenant  = null;
+    monthsCount    = 1;
+    rentAmount     = 0;
+    selectedMethod = 'mtn';
+    document.getElementById('code-input').value = '';
+    document.getElementById('code-hint').className = 'code-hint';
+    document.getElementById('code-hint').textContent = 'Exemple : AB3K7Z';
+    document.getElementById('code-input').classList.remove('error');
+    document.getElementById('phone-input').value = '';
+    document.getElementById('months-count').textContent = '1';
+    document.getElementById('phone-wrap').classList.add('visible');
+    document.querySelectorAll('.method-pill').forEach((p,i) => {
+      p.classList.toggle('selected', i === 0);
+    });
+    setStepActive(1);
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('step1').classList.remove('hidden');
+  }
+
+  function fmtAmount(v) {
+    return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  // Appui Entrée sur le champ code
+  document.getElementById('code-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lookupCode();
+  });
+</script>
+</body>
+</html>
